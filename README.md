@@ -20,7 +20,7 @@ app.config['FEATURES'] = {
     'test_key': True
 }
 
-app.feature.is\_enabled('test_key') # This returns True
+app.feature.is_enabled('test_key') # This returns True
 ```
 
 The possible values for a key are: True, False, and 'admin'.  If your key is set to admin, a function must be defined on your user object
