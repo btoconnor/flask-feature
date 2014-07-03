@@ -19,6 +19,8 @@ class FeatureManager(object):
         self.data = app.config.get('FEATURES', {})
         app.feature = self
 
+        app.context_processor(lambda: dict(feature=self))
+
     def is_enabled(self, key):
         ctx = stack.top
 
