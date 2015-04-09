@@ -1,48 +1,45 @@
-__version_info__ = ('0', '1', '0')
+__version_info__ = ('0', '2', '0')
 __version__ = '.'.join(__version_info__)
 __author__ = "Brian O'Connor"
 __license__ = 'MIT'
-__copyright__ = "(c) 2014 by Brian O'Connor"
-__all__ = ['FeatureManager']
+__copyright__ = "(c) 2015 by Brian O'Connor"
+
+import logging
 
 from flask import current_app, _app_ctx_stack as stack
 
 from flask.ext.login import current_user
 
+__all__ = ['FeatureManager']
+
+log = logging.getLogger(__name__)
+
 class FeatureManager(object):
 
     def __init__(self, app=None):
+        self.app = app
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app):
-        self.data = app.config.get('FEATURES', {})
+    def init_app(self, app, add_context_processor=True):
+        if add_context_processor:
+            app.context_processor(lambda: dict(feature=self))
         app.feature = self
-
-        app.context_processor(lambda: dict(feature=self))
-
+        
     def is_enabled(self, key):
-        ctx = stack.top
-
-        if ctx is not None:
-            if not hasattr(ctx, 'memoized_feature_flags'):
-                ctx.memoized_feature_flags = {}
-
-            if key in ctx.memoized_feature_flags:
-                current_app.logger.debug("Found {0} in memoized app context".format(key))
-                return ctx.memoized_feature_flags[key]
-
-        current_app.logger.debug("Checking if {0} is enabled in context".format(key))
-
-        value = self.data.get(key, False)
+        feature_flags = self._app.config.get('FEATURES', {})
+        value = feature_flags.get(key, False)
 
         if value == 'admin':
-            value = ((current_user is not None) and current_user.is_authenticated() and current_user.is_admin())
+            return current_user.is_authenticated() and current_user.is_admin()
 
         value = bool(value)
 
-        # Memoize this in the app context
-        ctx.memoized_feature_flags[key] = value
-        current_app.logger.debug("Set memoized value for {0} to {1}".format(key, value))
-
         return value
+
+    @property
+    def _app(self):
+        if self.app:
+            return self.app
+        else:
+            return current_app
