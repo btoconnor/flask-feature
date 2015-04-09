@@ -25,13 +25,22 @@ class FeatureManager(object):
         if add_context_processor:
             app.context_processor(lambda: dict(feature=self))
         app.feature = self
-        
+
     def is_enabled(self, key):
         feature_flags = self._app.config.get('FEATURES', {})
         value = feature_flags.get(key, False)
 
         if value == 'admin':
-            return current_user.is_authenticated() and current_user.is_admin()
+            has_admin_func = callable(getattr(current_user, 'is_admin', None))
+
+            if not current_user.is_authenticated():
+                return False
+            elif not has_admin_func:
+                log.warn("Current user does not have is_admin() function with admin feature flag encountered")
+                return False
+
+            else:
+                return current_user.is_admin()
 
         value = bool(value)
 
