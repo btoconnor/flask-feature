@@ -104,6 +104,13 @@ class FeatureFlagTestFactory(unittest.TestCase):
             login_user(no_admin_function_user)
             self.assertFalse(self.app.feature.is_enabled('admin_flag'))
 
+    def test_flag_returns_false_if_off_even_for_admin(self):
+        self._setup_login_manager()
+
+        with self.app.test_request_context():
+            login_user(admin_user)
+            self.assertFalse(self.app.feature.is_enabled('disabled_flag'))
+
 
 if __name__ == '__main__':
     unittest.main()
