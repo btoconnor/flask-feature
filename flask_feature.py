@@ -38,13 +38,10 @@ class FeatureManager(object):
             elif not has_admin_func:
                 log.warn("Current user does not have is_admin() function with admin feature flag encountered")
                 return False
-
             else:
                 return current_user.is_admin()
 
-        value = bool(value)
-
-        return value
+        return bool(value)
 
     @property
     def _app(self):
