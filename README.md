@@ -44,7 +44,7 @@ app.feature.is_enabled('test_key') # This returns True
 ```
 
 Additionally, by default, the feature manager registers a context processor for use in templates:
-```
+```html+jinja
 {% if feature.is_enabled('test_key') %}
     ...
 {% endif %}
