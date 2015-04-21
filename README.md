@@ -6,6 +6,9 @@ This Flask extension provides the ability to create feature flags in your code.
 This allows you to selectively enable or disable features (for instance, enabled in development, disabled in production), or
 for admins of the site.
 
+[![Build Status](https://travis-ci.org/btoconnor/flask-feature.svg?branch=master)](https://travis-ci.org/btoconnor/flask-feature)
+
+
 ### Configuring your app
 ```python
 from flask.ext.feature import FeatureManager
