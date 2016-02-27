@@ -5,6 +5,7 @@ __license__ = 'MIT'
 __copyright__ = "(c) 2015 by Brian O'Connor"
 
 import logging
+import hashlib
 
 from flask import current_app, _app_ctx_stack as stack
 
@@ -13,6 +14,7 @@ from flask.ext.login import current_user
 __all__ = ['FeatureManager']
 
 log = logging.getLogger(__name__)
+
 
 class FeatureManager(object):
 
@@ -33,7 +35,7 @@ class FeatureManager(object):
         if value == 'admin':
             has_admin_func = callable(getattr(current_user, 'is_admin', None))
 
-            if not current_user.is_authenticated():
+            if not current_user.is_authenticated:
                 return False
             elif not has_admin_func:
                 log.warn("Current user does not have is_admin() function with admin feature flag encountered")
@@ -49,3 +51,18 @@ class FeatureManager(object):
             return self.app
         else:
             return current_app
+
+    def hash(self, id_):
+        return self._map_hex(hashlib.sha256(id_))
+
+    def _map_hex(self, hashstr):
+        s = hashstr[:40]
+
+        v_max = 1 << len(s)
+        v = 0
+
+        for char in s:
+            bit = 0 if int(char, 16) < 8 else 1
+            v = (v << 1) + bit
+
+        return v / float(v_max)
